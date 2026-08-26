@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
 from database import Base, engine
-from models import User
-from routes import router
+from models import User, Widget
+from routes import router, widget_router
 
 
 app = FastAPI(
@@ -14,6 +14,7 @@ app = FastAPI(
 Base.metadata.create_all(bind=engine)
 
 app.include_router(router)
+app.include_router(widget_router)
 
 
 @app.get("/")
