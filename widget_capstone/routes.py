@@ -8,10 +8,17 @@ from auth import (
     verify_password,
 )
 from database import get_db
-from models import User
-from schemas import UserCreate, UserLogin, UserResponse
+from models import User, Widget
+from schemas import (
+    UserCreate,
+    UserLogin,
+    UserResponse,
+    WidgetCreate,
+    WidgetResponse,
+)
 
 
+# Authentication routes
 router = APIRouter(
     prefix="/api/auth",
     tags=["Authentication"],
@@ -86,3 +93,33 @@ def get_me(
     current_user: User = Depends(get_current_user),
 ):
     return current_user
+
+
+# Widget routes
+widget_router = APIRouter(
+    prefix="/api/widgets",
+    tags=["Widgets"],
+)
+
+
+@widget_router.post(
+    "/",
+    response_model=WidgetResponse,
+    status_code=201,
+)
+def create_widget(
+    widget_data: WidgetCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    widget = Widget(
+        user_id=current_user.id,
+        name=widget_data.name,
+        config=widget_data.config,
+    )
+
+    db.add(widget)
+    db.commit()
+    db.refresh(widget)
+
+    return widget
