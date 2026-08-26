@@ -123,3 +123,20 @@ def create_widget(
     db.refresh(widget)
 
     return widget
+
+
+@widget_router.get(
+    "/",
+    response_model=list[WidgetResponse],
+)
+def get_widgets(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    widgets = (
+        db.query(Widget)
+        .filter(Widget.user_id == current_user.id)
+        .all()
+    )
+
+    return widgets
