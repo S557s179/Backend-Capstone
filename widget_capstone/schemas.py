@@ -17,3 +17,17 @@ class UserResponse(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+
+class WidgetCreate(BaseModel):
+    name: str
+    config: dict
+
+
+class WidgetResponse(BaseModel):
+    id: int
+    name: str
+    config: dict
+
+    class Config:
+        from_attributes = True
