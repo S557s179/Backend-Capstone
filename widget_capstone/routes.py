@@ -1,3 +1,5 @@
+import secrets
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -110,10 +112,13 @@ def create_widget(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    api_key = secrets.token_urlsafe(32)
+
     widget = Widget(
         user_id=current_user.id,
         name=widget_data.name,
         config=widget_data.config,
+        api_key=api_key,
     )
 
     db.add(widget)
