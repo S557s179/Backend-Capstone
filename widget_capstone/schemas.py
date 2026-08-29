@@ -28,6 +28,7 @@ class WidgetResponse(BaseModel):
     id: int
     name: str
     config: dict
+    api_key: str
 
     class Config:
         from_attributes = True
