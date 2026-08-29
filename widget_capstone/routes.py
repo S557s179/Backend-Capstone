@@ -234,3 +234,32 @@ def delete_widget(
     db.commit()
 
     return None
+
+
+public_router = APIRouter(
+    prefix="/api/public",
+    tags=["Public Widget"],
+)
+
+
+@public_router.get(
+    "/widgets/{api_key}",
+    response_model=WidgetResponse,
+)
+def get_public_widget(
+    api_key: str,
+    db: Session = Depends(get_db),
+):
+    widget = (
+        db.query(Widget)
+        .filter(Widget.api_key == api_key)
+        .first()
+    )
+
+    if widget is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Widget not found",
+        )
+
+    return widget
