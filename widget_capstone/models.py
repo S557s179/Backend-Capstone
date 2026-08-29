@@ -26,4 +26,5 @@ class Widget(Base):
     )
     name = Column(String, nullable=False)
     config = Column(JSONB, nullable=False)
+    api_key = Column(String, unique=True, nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
