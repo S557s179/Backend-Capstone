@@ -18,7 +18,6 @@ from schemas import (
 )
 
 
-# Authentication routes
 router = APIRouter(
     prefix="/api/auth",
     tags=["Authentication"],
@@ -95,7 +94,6 @@ def get_me(
     return current_user
 
 
-# Widget routes
 widget_router = APIRouter(
     prefix="/api/widgets",
     tags=["Widgets"],
@@ -140,3 +138,94 @@ def get_widgets(
     )
 
     return widgets
+
+
+@widget_router.get(
+    "/{widget_id}",
+    response_model=WidgetResponse,
+)
+def get_widget(
+    widget_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    widget = (
+        db.query(Widget)
+        .filter(
+            Widget.id == widget_id,
+            Widget.user_id == current_user.id,
+        )
+        .first()
+    )
+
+    if widget is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Widget not found",
+        )
+
+    return widget
+
+
+@widget_router.put(
+    "/{widget_id}",
+    response_model=WidgetResponse,
+)
+def update_widget(
+    widget_id: int,
+    widget_data: WidgetCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    widget = (
+        db.query(Widget)
+        .filter(
+            Widget.id == widget_id,
+            Widget.user_id == current_user.id,
+        )
+        .first()
+    )
+
+    if widget is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Widget not found",
+        )
+
+    widget.name = widget_data.name
+    widget.config = widget_data.config
+
+    db.commit()
+    db.refresh(widget)
+
+    return widget
+
+
+@widget_router.delete(
+    "/{widget_id}",
+    status_code=204,
+)
+def delete_widget(
+    widget_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    widget = (
+        db.query(Widget)
+        .filter(
+            Widget.id == widget_id,
+            Widget.user_id == current_user.id,
+        )
+        .first()
+    )
+
+    if widget is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Widget not found",
+        )
+
+    db.delete(widget)
+    db.commit()
+
+    return None
